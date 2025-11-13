@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>💔 Breakup Recovery Assistant</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #FFDEE9 0%, #B5FFFC 100%);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .card-shadow {
+      box-shadow: 0 10px 15px -3px rgb(219 39 119 / 0.1), 0 4px 6px -2px rgb(219 39 119 / 0.05);
+    }
+
+    .btn-gradient:hover {
+      background-image: linear-gradient(45deg, #ec4899, #8b5cf6);
+      transition: background-image 0.3s ease-in-out;
+    }
+
+    .prose h3 {
+      font-size: 1.3rem;
+      color: #db2777;
+      margin-top: 1.2rem;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .prose ul {
+      list-style-type: disc;
+      margin-left: 1.5rem;
+    }
+
+    .prose li {
+      margin-bottom: 0.4rem;
+    }
+
+    .prose strong {
+      color: #7e22ce;
+      font-weight: 700;
+    }
+
+    .prose p {
+      margin-bottom: 0.6rem;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col text-gray-900">
+
+  <div class="container mx-auto px-6 py-12 flex-grow max-w-5xl">
+    <h1 class="text-5xl font-extrabold text-center text-pink-600 mb-12 drop-shadow-lg">
+      💔 Breakup Recovery Assistant
+    </h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-8 max-w-3xl mx-auto">
+          {% for category, message in messages %}
+            <div class="text-red-700 font-semibold mb-3 rounded-md bg-red-100 p-3 shadow-md">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" enctype="multipart/form-data" class="bg-white rounded-2xl p-8 max-w-3xl mx-auto card-shadow space-y-8">
+      <textarea
+        name="user_input"
+        rows="6"
+        placeholder="📝 Tell us your breakup story or feelings..."
+        class="w-full border border-pink-300 rounded-lg px-5 py-4 resize-y text-lg placeholder-pink-400 focus:outline-none focus:ring-4 focus:ring-pink-300 shadow-sm"
+        required
+      ></textarea>
+
+      <input
+        type="file"
+        name="images"
+        accept="image/*"
+        multiple
+        class="w-full border border-pink-300 rounded-lg px-4 py-3 cursor-pointer text-pink-600 shadow-sm"
+      />
+
+      <button
+        type="submit"
+        class="w-full bg-gradient-to-r from-pink-400 via-purple-500 to-indigo-600 text-white font-extrabold text-xl py-4 rounded-xl shadow-lg btn-gradient hover:scale-105 transform transition"
+      >
+        Generate Support Plan 💝
+      </button>
+    </form>
+
+    <div class="mt-14 grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+      {% if therapist %}
+      <section class="bg-white p-7 rounded-2xl shadow-xl prose max-w-none border-l-8 border-pink-400">
+        <h2 class="text-3xl font-bold text-pink-600 mb-5">🤗 Therapist Response</h2>
+        <div id="therapist" class="markdown">{{ therapist }}</div>
+      </section>
+      {% endif %}
+
+      {% if closure %}
+      <section class="bg-white p-7 rounded-2xl shadow-xl prose max-w-none border-l-8 border-purple-500">
+        <h2 class="text-3xl font-bold text-purple-600 mb-5">✍️ Closure Message</h2>
+        <div id="closure" class="markdown">{{ closure }}</div>
+      </section>
+      {% endif %}
+
+      {% if planner %}
+      <section class="bg-white p-7 rounded-2xl shadow-xl prose max-w-none border-l-8 border-indigo-600">
+        <h2 class="text-3xl font-bold text-indigo-600 mb-5">📅 7-Day Recovery Plan</h2>
+        <div id="planner" class="markdown">{{ planner }}</div>
+      </section>
+      {% endif %}
+
+      {% if honesty %}
+      <section class="bg-white p-7 rounded-2xl shadow-xl prose max-w-none border-l-8 border-pink-700">
+        <h2 class="text-3xl font-bold text-pink-700 mb-5">💪 Brutal Honesty</h2>
+        <div id="honesty" class="markdown">{{ honesty }}</div>
+      </section>
+      {% endif %}
+    </div>
+
+    <footer class="mt-20 text-center text-pink-700 text-sm font-medium select-none">
+      Made with ❤️ using Groq + Flask · #BreakupRecoverySquad
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const sections = ["therapist", "closure", "planner", "honesty"];
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          let text = el.textContent.trim();
+
+          // Clean and format text before markdown rendering
+          text = text
+            .replace(/\*\*/g, '')  // Remove random bold markers
+            .replace(/(\d+\.)/g, '\n\n### $1')  // Convert numbers to headings
+            .replace(/([A-Z][^:\n]+):/g, '**$1:**')  // Bold section labels
+            .replace(/\n\s*(?=[A-Z])/g, '\n\n')  // Add spacing between sections
+            .replace(/\n{3,}/g, '\n\n'); // Clean extra spacing
+
+          el.innerHTML = marked.parse(text);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
